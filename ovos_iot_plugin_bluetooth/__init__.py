@@ -39,6 +39,19 @@ class BluetoothDevice(IOTPlugin):
         return self.raw_data["alias"]
 
 
+class BluetoothPlugin:
+    def scan(self):
+        for d in scan_bluetooth():
+            yield d
+
+    def get_device(self, ip):
+        # NOTE: for bluetooth this is the MAC address, not IP
+        for device in self.scan():
+            if device.host == ip:
+                return device
+        return None
+
+
 if __name__ == "__main__":
     from pprint import pprint
 
