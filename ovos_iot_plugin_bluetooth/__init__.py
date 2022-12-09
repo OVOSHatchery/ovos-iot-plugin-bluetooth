@@ -1,14 +1,9 @@
-from ovos_plugin_manager.templates.iot import IOTPlugin, RGBWBulb, RGBBulb, Bulb
 import bluetooth
 
-
-def scan_bluetooth():
-    for addr, name in bluetooth.discover_devices(lookup_names=True):
-        device_id = f"{name}:{addr}"
-        yield BluetoothDevice(device_id, addr, name, {"address": addr, "name": name, "device_type": "bluetooth"})
+from ovos_plugin_manager.templates.iot import IOTDevicePlugin, IOTScannerPlugin
 
 
-class BluetoothDevice(IOTPlugin):
+class BluetoothDevice(IOTDevicePlugin):
     def __init__(self, device_id, host, name="generic bluetooth device", raw_data=None):
         device_id = device_id or f"bluetooth:{host}"
         raw_data = raw_data or {"name": name, "description": "bluetooth device"}
@@ -39,10 +34,11 @@ class BluetoothDevice(IOTPlugin):
         return self.raw_data["alias"]
 
 
-class BluetoothPlugin:
+class BluetoothPlugin(IOTScannerPlugin):
     def scan(self):
-        for d in scan_bluetooth():
-            yield d
+        for addr, name in bluetooth.discover_devices(lookup_names=True):
+            device_id = f"{name}:{addr}"
+            yield BluetoothDevice(device_id, addr, name, {"address": addr, "name": name, "device_type": "bluetooth"})
 
     def get_device(self, ip):
         # NOTE: for bluetooth this is the MAC address, not IP
@@ -55,6 +51,5 @@ class BluetoothPlugin:
 if __name__ == "__main__":
     from pprint import pprint
 
-    for host in scan_bluetooth():
+    for host in BluetoothPlugin().scan():
         pprint(host.as_dict)
-
