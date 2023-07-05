@@ -1,7 +1,7 @@
 import time
 
 import bluetooth
-from ovos_plugin_manager.templates.iot import Sensor, IOTScannerPlugin
+from ovos_PHAL_plugin_commonIOT.opm.base import Sensor, IOTScannerPlugin
 
 
 class BluetoothDevice(Sensor):
@@ -42,31 +42,3 @@ class BluetoothPlugin(IOTScannerPlugin):
                 return device
         return None
 
-
-if __name__ == "__main__":
-    from pprint import pprint
-    from ovos_utils.messagebus import FakeBus
-    from ovos_utils import wait_for_exit_signal
-
-    bus = FakeBus()
-    print("scanning....")
-
-    # user defined device_id to friendly name mappings
-    aliases = {
-        "C39:54:1C:43:1F:42:2C": "Stereo",
-        "user-hpnotebook:4C:1D:96:44:DF:B2": "MiniPC"
-    }
-
-    def cb(device):
-        # TODO - http webhook callback, eg, HA sensor
-        from pprint import pprint
-        pprint(device.as_dict)
-
-
-    scanner = BluetoothPlugin(bus,
-                              aliases=aliases,
-                              new_device_callback=cb,
-                              lost_device_callback=cb)
-
-    scanner.start()
-    wait_for_exit_signal()
